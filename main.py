@@ -318,8 +318,8 @@ if __name__ == "__main__":
         print("Invalid number of threads. Setting to default: 1")
         threads = 1
 
-    headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
     print("example: Cookies: test=123;id=asdasd, User-Agent: Mozilla/Firefox")
+    headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
 
     # Parse the headers
     headers = {}
