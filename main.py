@@ -318,14 +318,15 @@ if __name__ == "__main__":
         print("Invalid number of threads. Setting to default: 1")
         threads = 1
 
+    print("Example for custom headers: Cookies: test=123;id=asdasd, User-Agent: Mozilla/Firefox")
     headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
 
     # Parse the headers
     headers = {}
     if headers_input:
-        header_items = headers_input.split(',')
+        header_items = [item.strip() for item in headers_input.split(',') if ':' in item]
         for item in header_items:
-            key, value = item.split(':')
+            key, value = item.split(':', 1)  # Split only on the first colon
             headers[key.strip()] = value.strip()
 
     # Initialize the scanner
@@ -341,5 +342,6 @@ if __name__ == "__main__":
         print(Fore.WHITE + "[+] COMPLETED")
     except Exception as e:
         print(e)
+
 
 #print(Main("test.txt","out.txt").replace("http://testphp.vulnweb.com/listproducts.php?cat=1","cat","superman"))
