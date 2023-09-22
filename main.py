@@ -64,15 +64,18 @@ class Main:
         #print(headers)
         self.result = []
 
-    def read(self,filename):
+    def read(self):
         '''
-        Read & sort GET  urls from given filename
+        Read & sort GET urls from the file 'urls.txt'
         '''
         print(Fore.WHITE + "READING URLS")
-        urls = subprocess.check_output(f"cat {filename} | grep '=' | sort -u",shell=True).decode('utf-8')
+        with open('urls.txt', 'r') as file:
+            urls = [line.strip() for line in file if '=' in line]
+        urls = sorted(set(urls))
+        print(urls)
         if not urls:
             print(Fore.GREEN + f"[+] NO URLS WITH GET PARAMETER FOUND")
-        return urls.split()
+        return urls
 
     def write(self, output, value):
         '''
@@ -80,7 +83,8 @@ class Main:
         '''
         if not output:
             return None
-        subprocess.call(f"echo '{value}' >> {output}",shell=True)
+        with open(output, 'a') as file:
+            file.write(value + '\n')
 
     def replace(self,url,param_name,value):
         return re.sub(f"{param_name}=([^&]+)",f"{param_name}={value}",url)
@@ -288,7 +292,7 @@ class Main:
                     else:
                         response = requests.get(new_url, params=data).text
                     if payload in response:
-                        print(Fore.RED + f"[+] VULNERABLE: {url}\nPARAMETER: {key}\nPAYLOAD USED: {payload}")
+                        print(Fore.GREEN + f"[+] VULNERABLE: {url}\nPARAMETER: {key}\nPAYLOAD USED: {payload}")
                         print(self.replace(url,key,payload))
                         self.result.append(self.replace(url,key,payload))
                         return True
@@ -298,34 +302,42 @@ class Main:
             print(Fore.LIGHTWHITE_EX + f"[+] TARGET SEEMS TO BE NOT VULNERABLE")
         return None
 
+
 if __name__ == "__main__":
-    urls = []
-    Scanner = Main(filename, output, headers=headers)
+    print("Welcome to the scanner!")
+
+    # Ask the user for input
+    output = input("-o: Output filename in which all the vulnerable endpoints will be stored: ")
+
     try:
-        #out = []
-        #print(headers)
-        if url:
-            Scanner = Main(url,output,headers=headers)
-            Scanner.scanner(url)
-            if Scanner.result:
-                Scanner.write(output,Scanner.result[0])
-            exit()
-        elif pipe:
-            out = sys.stdin
-            for url in out:
-                urls.append(url)
-        else:
-            urls = Scanner.read(filename)
-        print(Fore.GREEN + "[+] CURRENT THREADS: {}".format(threads))
-        '''
-        for url in urls:
-            print(Fore.WHITE + f"[+] TESTING {url}")
-            vuln = Scanner.scanner(url)
-        '''
+        threads = int(input("-t: Number of threads (Max: 10): "))
+        if threads > 10:
+            print("Setting threads to the maximum allowed: 10")
+            threads = 10
+    except ValueError:
+        print("Invalid number of threads. Setting to default: 1")
+        threads = 1
+
+    headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
+
+    # Parse the headers
+    headers = {}
+    if headers_input:
+        header_items = headers_input.split(',')
+        for item in header_items:
+            key, value = item.split(':')
+            headers[key.strip()] = value.strip()
+
+    # Initialize the scanner
+    Scanner = Main(None, output, headers=headers)
+
+    try:
+        urls = Scanner.read()
         with ThreadPoolExecutor(max_workers=threads) as executor:
-            executor.map(Scanner.scanner,urls)
+            executor.map(Scanner.scanner, urls)
+        print(f"Scanner results: {Scanner.result}")  # Debugging print
         for i in Scanner.result:
-            Scanner.write(output,i)
+            Scanner.write(output, i)
         print(Fore.WHITE + "[+] COMPLETED")
     except Exception as e:
         print(e)
