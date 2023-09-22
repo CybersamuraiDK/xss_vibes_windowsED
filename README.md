@@ -1,3 +1,12 @@
+I DID NOT CREATE THIS! 
+
+I merely changed my version to work on windows, instead of linux terminal. 
+
+I used a python IDE to run it, like PYCHARM. 
+
+
+##################################################
+
 ## XSS_VIBES
 "Experience the Vibes of Security with xss_vibes"
 
