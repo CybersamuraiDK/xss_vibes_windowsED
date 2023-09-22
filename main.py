@@ -343,5 +343,4 @@ if __name__ == "__main__":
     except Exception as e:
         print(e)
 
-
 #print(Main("test.txt","out.txt").replace("http://testphp.vulnweb.com/listproducts.php?cat=1","cat","superman"))
