@@ -344,9 +344,14 @@ if __name__ == "__main__":
         urls = Scanner.read()
         with ThreadPoolExecutor(max_workers=threads) as executor:
             executor.map(Scanner.scanner, urls)
-        print(f"Scanner results: {Scanner.result}")  # Debugging print
-        for i in Scanner.result:
-            Scanner.write(output, i)
+
+        if not Scanner.result:
+            print(Fore.RED + "[-] No vulnerabilities found for this URL.")
+        else:
+            print(f"Scanner results: {Scanner.result}")
+            for i in Scanner.result:
+                Scanner.write(output, i)
+
         print(Fore.WHITE + "[+] COMPLETED")
     except Exception as e:
         print(e)
