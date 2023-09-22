@@ -334,7 +334,7 @@ if __name__ == "__main__":
     waf = True if waf_input == 'yes' else False
 
     # Ask the user if they want to specify a custom WAF
-    custom_waf = input("Do you want to use specific payloads related to W.A.F? If yes, specify the WAF, otherwise leave blank: ")
+    custom_waf = input("Do you want to use specific payloads related to W.A.F? If yes, write name of WAF(Cloudflare), otherwise leave blank: ")
 
     # Ask the user if they want to use the pipe flag
     pipe_input = input("Do you want to pipe the output of a process as an input? (yes/no): ").lower()
