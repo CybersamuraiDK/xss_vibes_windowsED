@@ -318,8 +318,8 @@ if __name__ == "__main__":
         print("Invalid number of threads. Setting to default: 1")
         threads = 1
 
-    print("Example for custom headers: Cookies: test=123;id=asdasd, User-Agent: Mozilla/Firefox")
     headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
+    print("example: Cookies: test=123;id=asdasd, User-Agent: Mozilla/Firefox")
 
     # Parse the headers
     headers = {}
@@ -328,6 +328,17 @@ if __name__ == "__main__":
         for item in header_items:
             key, value = item.split(':', 1)  # Split only on the first colon
             headers[key.strip()] = value.strip()
+
+    # Ask the user if they want to use the waf flag
+    waf_input = input("Do you want to detect the web application firewall? (yes/no): ").lower()
+    waf = True if waf_input == 'yes' else False
+
+    # Ask the user if they want to specify a custom WAF
+    custom_waf = input("Do you want to use specific payloads related to W.A.F? If yes, specify the WAF, otherwise leave blank: ")
+
+    # Ask the user if they want to use the pipe flag
+    pipe_input = input("Do you want to pipe the output of a process as an input? (yes/no): ").lower()
+    pipe = True if pipe_input == 'yes' else False
 
     # Initialize the scanner
     Scanner = Main(None, output, headers=headers)
