@@ -256,8 +256,7 @@ class Main:
                 continue
         return payload_list
 
-
-    def scanner(self,url):
+    def scanner(self, url):
         print(Fore.WHITE + f"[+] TESTING {url}")
         if waf:
             print(Fore.LIGHTGREEN_EX + "[+] DETECTING WAF")
@@ -268,40 +267,37 @@ class Main:
                 print(Fore.LIGHTGREEN_EX + f"[+] NO WAF FOUND! GOING WITH THE NORMAL PAYLOADS")
                 firewall = None
         elif custom_waf:
-            #print(1)
             firewall = custom_waf
         else:
             firewall = None
+
         out = self.fuzzer(url)
-       # print(out)
+        vulnerable_found = False  # Flag to track if any vulnerability was found
+
         for data in out:
             for key in data:
-                payload_list = self.filter_payload(data[key],firewall)
-                #print(f"[+] TESTING THE BELOW PAYLOADS {payload_list}")
-            for payload in payload_list:
-                try:
-                    #print(f"Testing: {payload}")
-                    data = self.parser(url,key,payload)
-                    parsed_data = urlparse(url)
-                    new_url = parsed_data.scheme +  "://" + parsed_data.netloc + parsed_data.path
-                    #print(new_url)
-                    #print(data)
-                    if self.headers:
-                        #print("I am here")
-                        response = requests.get(new_url,params=data, headers=self.headers).text
-                    else:
-                        response = requests.get(new_url, params=data).text
-                    if payload in response:
-                        print(Fore.GREEN + f"[+] VULNERABLE: {url}\nPARAMETER: {key}\nPAYLOAD USED: {payload}")
-                        print(self.replace(url,key,payload))
-                        self.result.append(self.replace(url,key,payload))
-                        return True
-                except Exception as e:
-                    print(e)
-        if not threads or threads == 1:
-            print(Fore.LIGHTWHITE_EX + f"[+] TARGET SEEMS TO BE NOT VULNERABLE")
-        return None
+                payload_list = self.filter_payload(data[key], firewall)
+                for payload in payload_list:
+                    try:
+                        data = self.parser(url, key, payload)
+                        parsed_data = urlparse(url)
+                        new_url = parsed_data.scheme + "://" + parsed_data.netloc + parsed_data.path
+                        if self.headers:
+                            response = requests.get(new_url, params=data, headers=self.headers).text
+                        else:
+                            response = requests.get(new_url, params=data).text
+                        if payload in response:
+                            print(Fore.GREEN + f"[+] VULNERABLE: {url}\nPARAMETER: {key}\nPAYLOAD USED: {payload}")
+                            print(self.replace(url, key, payload))
+                            self.result.append(self.replace(url, key, payload))
+                            vulnerable_found = True  # Set the flag to True if a vulnerability is found
+                    except Exception as e:
+                        print(e)
 
+        if not vulnerable_found and (not threads or threads == 1):
+            print(Fore.LIGHTWHITE_EX + f"[+] TARGET SEEMS TO BE NOT VULNERABLE")
+
+        return vulnerable_found
 
 if __name__ == "__main__":
     print("Welcome to the scanner!")
@@ -321,6 +317,7 @@ if __name__ == "__main__":
     print("example: Cookies: test=123;id=asdasd, User-Agent: Mozilla/Firefox")
     headers_input = input("-H: Custom Headers (use ',' within '' to add multiple headers): ")
 
+
     # Parse the headers
     headers = {}
     if headers_input:
@@ -330,15 +327,15 @@ if __name__ == "__main__":
             headers[key.strip()] = value.strip()
 
     # Ask the user if they want to use the waf flag
-    waf_input = input("Do you want to detect the web application firewall? (yes/no): ").lower()
-    waf = True if waf_input == 'yes' else False
+    waf_input = input("Do you want to detect the web application firewall? (y/n): ").lower()
+    waf = True if waf_input == 'y' else False
 
     # Ask the user if they want to specify a custom WAF
     custom_waf = input("Do you want to use specific payloads related to W.A.F? If yes, write name of WAF(Cloudflare), otherwise leave blank: ").lower()
 
     # Ask the user if they want to use the pipe flag
-    pipe_input = input("Do you want to pipe the output of a process as an input? (yes/no): ").lower()
-    pipe = True if pipe_input == 'yes' else False
+    pipe_input = input("Do you want to pipe the output of a process as an input? (y/n): ").lower()
+    pipe = True if pipe_input == 'y' else False
 
     # Initialize the scanner
     Scanner = Main(None, output, headers=headers)
